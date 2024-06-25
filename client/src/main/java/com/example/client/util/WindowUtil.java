@@ -11,7 +11,7 @@ import java.io.IOException;
 public class WindowUtil {
     public static void initAndShowMainStage(Stage stage) throws IOException {
         FXMLLoader mainFxmlLoader = new FXMLLoader(Main.class.getResource("main-view.fxml"));
-        Scene mainScene = new Scene(mainFxmlLoader.load(), 320, 240);
+        Scene mainScene = new Scene(mainFxmlLoader.load(), 440, 400);
         stage.setTitle("Temperature regulator");
         stage.setScene(mainScene);
         stage.show();
