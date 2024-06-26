@@ -1,2 +1,4 @@
 server:
   port: 9090
+
+application.description: Trial task for Technesis company

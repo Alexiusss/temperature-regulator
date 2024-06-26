@@ -1,6 +1,7 @@
 package com.example.server.web;
 
 import com.example.server.service.RegulatorService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +20,14 @@ public class RegulatorController {
     @Autowired
     RegulatorService regulatorService;
 
+    @Operation(summary = "Set new temperature")
     @PostMapping
     public ResponseEntity<List<Float>> setTemperature(@RequestParam(name = "temperature") String temperature) {
         List<Float> body = regulatorService.setTemperature(temperature);
         return ResponseEntity.ok(body);
     }
 
+    @Operation(summary = "Retrieve one of the last values")
     @GetMapping
     public ResponseEntity<List<Float>> getLastWithShift(
             @RequestParam(name = "shift", required = false, defaultValue = "0") Integer shift,
@@ -35,12 +38,14 @@ public class RegulatorController {
 
     }
 
+    @Operation(summary = "Retrieve current temperature")
     @GetMapping("current-temperature")
     public ResponseEntity<Float> getCurrentTemperature() {
         Float currentTemperature = regulatorService.getCurrentTemperature();
         return ResponseEntity.ok(currentTemperature);
     }
 
+    @Operation(summary = "Clear the temperature list")
     @PostMapping("clear")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void clearList() {
