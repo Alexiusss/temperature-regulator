@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+/**
+ *  The WebService class provides methods to interact with a remote temperature
+ *  regulator by using server, including setting temperatures and retrieving data.
+ */
 public class WebService {
 
     private static final String SERVER_URL = "http://localhost:9090/api/v1/regulator/";
@@ -44,6 +48,12 @@ public class WebService {
         }
     }
 
+    /**
+     * Converts a response string from the server to a list of Floats.
+     *
+     * @param response the response string from the server
+     * @return a list of Float values
+     */
     private List<Float> convertResponseToList(String response) {
         String string = response.replaceAll("[\\[|\\]]", "");
         if (string.isEmpty()) {

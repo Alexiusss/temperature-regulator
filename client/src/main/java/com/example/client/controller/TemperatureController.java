@@ -13,6 +13,10 @@ import java.util.List;
 
 import static com.example.client.util.WindowUtil.initAndShowWarningWindow;
 
+/**
+ * The TemperatureController class handles the user interactions for the temperature regulator UI,
+ * including fetching and setting temperature values.
+ */
 public class TemperatureController {
 
     private final WebService webService = new WebService();
@@ -30,12 +34,26 @@ public class TemperatureController {
         listView.setItems(itemList);
         doubleSpinner.setValueFactory(spinner);
     }
+
+    /**
+     * Handles the action of the "Get data" button click by fetching temperature data from the web service
+     * and updating the ListView with the retrieved data.
+     *
+     * @throws IOException if an I/O error occurs during the web service call
+     */
     @FXML
     protected void onGetButtonClick() throws IOException {
         List<Float> data = webService.getData();
         listView.getItems().addAll(data);
     }
 
+    /**
+     * Handles the action of the "Set" button click by setting the temperature via the web service
+     * and displaying a warning if the current temperature is out of the allowed range.
+     *
+     * @throws IOException if an I/O error occurs during the web service call
+     * @throws InterruptedException if the warning window display is interrupted
+     */
     @FXML
     protected void onPostButtonClick() throws IOException, InterruptedException {
         Float currenTemperature = webService.setTemperature(doubleSpinner.getValue());
