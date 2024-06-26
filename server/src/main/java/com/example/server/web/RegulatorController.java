@@ -2,7 +2,6 @@ package com.example.server.web;
 
 import com.example.server.service.RegulatorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,27 +20,25 @@ public class RegulatorController {
     RegulatorService regulatorService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.OK)
-    public void setTemperature(@RequestHeader(name = "test") @NumberFormat String number) {
-        regulatorService.setTemperature(number);
+    public ResponseEntity<List<Float>> setTemperature(@RequestParam(name = "temperature") String temperature) {
+        List<Float> body = regulatorService.setTemperature(temperature);
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping
-    public ResponseEntity<List<Float>> getAll() {
-        return ResponseEntity.ok(regulatorService.getAll());
+    public ResponseEntity<List<Float>> getLastWithShift(
+            @RequestParam(name = "shift", required = false, defaultValue = "0") Integer shift,
+            @RequestParam(name = "count", required = false, defaultValue = "0") Integer count
+    ) {
+        List<Float> temperatureWithShift = regulatorService.getValueWithShift(shift, count);
+        return ResponseEntity.ok(temperatureWithShift);
+
     }
 
     @GetMapping("current-temperature")
     public ResponseEntity<Float> getCurrentTemperature() {
         Float currentTemperature = regulatorService.getCurrentTemperature();
         return ResponseEntity.ok(currentTemperature);
-    }
-
-    @GetMapping("last-temperature")
-    public ResponseEntity<Float> getLastWithShift(@RequestParam(name = "shift") Integer shift, @RequestParam(name = "count") Integer count) {
-        Float temperatureWithShift = regulatorService.getTemperatureWithShift(shift, count);
-        return ResponseEntity.ok(temperatureWithShift);
-
     }
 
     @PostMapping("clear")

@@ -2,7 +2,7 @@ package com.example.regulator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class WebRegulator implements Regulator {
 
@@ -26,14 +26,15 @@ public class WebRegulator implements Regulator {
     }
 
     @Override
-    public void setTemperature(Float value) {
-        Random random = new Random();
-        int numbersCount = 3 + random.nextInt(6);
+    public List<Float> setTemperature(Float value) {
+        int numbersCount = 3 + ThreadLocalRandom.current().nextInt(6);
         Float lastValue = 0f;
         if (!temperatureList.isEmpty()){
             lastValue = temperatureList.get(temperatureList.size() - 1);
         }
-        temperatureList.addAll(getInterpolatedValues(lastValue, value, numbersCount));
+        List<Float> values = getInterpolatedValues(lastValue, value, numbersCount);
+        temperatureList.addAll(values);
+        return values;
     }
 
     /***
@@ -48,8 +49,9 @@ public class WebRegulator implements Regulator {
             throw new IllegalArgumentException("Interpolate: illegal count!");
         }
         List<Float> list = new ArrayList<>();
-        for (int i = 0; i <= count; ++i) {
-            float value = start + i * (end - start) / count;
+        for (int i = 0; i < count; ++i) {
+            float value = start + i * (end - start) / (count - 1);
+            value = (float) (Math.floor(value * 100) / 100);
             list.add(i, value);
         }
         return list;

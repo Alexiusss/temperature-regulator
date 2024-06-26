@@ -14,8 +14,8 @@ public class RegulatorService {
         this.regulator = WebRegulator.getInstance();
     }
 
-    public void setTemperature(String number){
-        regulator.setTemperature(Float.valueOf(number));
+    public List<Float> setTemperature(String number) {
+        return regulator.setTemperature(Float.valueOf(number));
     }
 
     public Float getCurrentTemperature() {
@@ -26,11 +26,15 @@ public class RegulatorService {
         return temperatureList.get(temperatureList.size() - 1);
     }
 
-    public Float getTemperatureWithShift(int shift, int count) {
+    public List<Float> getValueWithShift(int shift, int count) {
         List<Float> all = getAll();
 
-        if (all == null || all.isEmpty()) {
-            throw new IllegalStateException("Temperature list is empty or null.");
+        if (all == null) {
+            throw new IllegalStateException("Temperature list is null.");
+        }
+
+        if ((shift == 0 && count == 0) || all.isEmpty()) {
+            return all;
         }
 
         int size = all.size();
@@ -39,13 +43,13 @@ public class RegulatorService {
             throw new IllegalArgumentException("Invalid count value.");
         }
 
-        if (shift <= 0 || shift > count) {
+        if (shift <= 0 || shift < count) {
             throw new IllegalArgumentException("Invalid shift value.");
         }
 
-        List<Float> sublist = all.subList(size - count, size);
-
-        return sublist.get(sublist.size() - shift - 1);
+        int start = size - shift;
+        int end = start + count;
+        return all.subList(start, end);
     }
 
     public List<Float> getAll() {
