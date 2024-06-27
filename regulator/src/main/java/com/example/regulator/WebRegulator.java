@@ -1,8 +1,10 @@
 package com.example.regulator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The WebRegulator class implements the Regulator interface and provides methods
@@ -15,8 +17,11 @@ public class WebRegulator implements Regulator {
 
     private final List<Float> temperatureList;
 
+    private final ReentrantLock lock;
+
     private WebRegulator() {
-        this.temperatureList = new ArrayList<>();
+        this.temperatureList = Collections.synchronizedList(new ArrayList<>());
+        lock = new ReentrantLock(true);
     }
 
     public static WebRegulator getInstance() {
@@ -40,14 +45,19 @@ public class WebRegulator implements Regulator {
      */
     @Override
     public List<Float> setTemperature(Float value) {
-        int numbersCount = 3 + ThreadLocalRandom.current().nextInt(6);
-        Float lastValue = 0f;
-        if (!temperatureList.isEmpty()){
-            lastValue = temperatureList.get(temperatureList.size() - 1);
+        lock.lock();
+        try {
+            int numbersCount = 3 + ThreadLocalRandom.current().nextInt(6);
+            Float lastValue = 0f;
+            if (!temperatureList.isEmpty()) {
+                lastValue = temperatureList.get(temperatureList.size() - 1);
+            }
+            List<Float> values = getInterpolatedValues(lastValue, value, numbersCount);
+            temperatureList.addAll(values);
+            return values;
+        } finally {
+            lock.unlock();
         }
-        List<Float> values = getInterpolatedValues(lastValue, value, numbersCount);
-        temperatureList.addAll(values);
-        return values;
     }
 
     /**
@@ -55,7 +65,7 @@ public class WebRegulator implements Regulator {
      * The count of interpolated values is specified by the count parameter.
      *
      * @param start start of the interval
-     * @param end end of the interval
+     * @param end   end of the interval
      * @param count count of output interpolated numbers
      * @throws IllegalArgumentException if count is less than 3
      */
@@ -74,12 +84,22 @@ public class WebRegulator implements Regulator {
 
     @Override
     public List<Float> getTemperatureList() {
-        return temperatureList;
+        lock.lock();
+        try {
+            return temperatureList;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
     public void clearTemperatureList() {
-        temperatureList.clear();
+        lock.lock();
+        try {
+            temperatureList.clear();
+        } finally {
+            lock.unlock();
+        }
     }
 
     public static void destroyInstance() {
