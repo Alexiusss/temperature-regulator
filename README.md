@@ -1,7 +1,5 @@
 # TemperatureRegulator
 
-Trial task for Technesis company. The source of a technical task for Java developers is located [here](https://disk.yandex.ru/i/76jeU9Ai8HlKhw).
-
 ## Run TemperatureRegulator locally
 You can build a jar files and run them from the command line (it should work just as well with Java 17 or newer). A JavaFX 17+ installed module is also required.
 ```bash
