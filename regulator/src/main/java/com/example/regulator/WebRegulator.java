@@ -105,4 +105,47 @@ public class WebRegulator implements Regulator {
     public static void destroyInstance() {
         instance = null;
     }
+
+    /**
+     * Adjusts the regulator based on the operation specified by the operation byte.
+     *
+     * @param operation the byte that specifies the operation and parameters
+     * @param inData    the temperature value to be set
+     * @param outData   the list to store the previous values
+     * @param offSet    the shift relative to the last value index
+     * @return 0 if successful, error codes 1-3 otherwise
+     */
+    @Override
+    public int adjustTemperature(byte operation, float inData, List<Float> outData, int offSet) {
+        boolean isClearingRequired = (operation & 0b00000001) != 0;
+        boolean isTemperatureSettingRequired = (operation & 0b00000010) != 0;
+        boolean isNeedToReceiveData = (operation & 0b00000100) != 0;
+        int readCount = (operation >> 3) & 0b00001111;
+
+        lock.lock();
+        try {
+            if (isClearingRequired) {
+                clearTemperatureList();
+            }
+            if (isTemperatureSettingRequired) {
+                setTemperature(inData);
+            }
+            if (isNeedToReceiveData) {
+                int size = temperatureList.size();
+                if (size == 0) {
+                    return 2;
+                }
+                if (offSet > size - readCount) {
+                    return 1;
+                }
+                outData.addAll(temperatureList.subList(size - readCount - offSet, size - offSet));
+                if (inData < -200 || inData > 1000) {
+                    return 3;
+                }
+            }
+            return 0;
+        } finally {
+            lock.unlock();
+        }
+    }
 }
